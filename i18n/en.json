@@ -1,0 +1,19 @@
+{
+    "@metadata": {
+        "authors": [
+			"Josef Martiňák"
+		]
+    },
+    "advanceduserstats": "AdvancedStats",
+	"advanceduserstats-desc": "Advaced users' activities",
+	"advanceduserstats-info": "What ContributionScores can't do - reverts, patroling",
+	"advanceduserstats-top": "($1 highest)",
+	"advanceduserstats-days": "{{PLURAL:$1|Last day|Last $1 days|Last $1 days}}",
+	"advanceduserstats-rollback": "Rollbacks",
+	"advanceduserstats-undo": "Undos",
+	"advanceduserstats-patrol": "Patrolled editations",
+	"advanceduserstats-pages": "Pages",
+	"advanceduserstats-nonexistent": "Non-existent page",
+	"advanceduserstats-username": "Username",
+	"advanceduserstats-allrevisions": "Complete history"
+}

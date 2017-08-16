@@ -1,0 +1,36 @@
+{
+	"name": "AdvancedUserStats",
+	"version": "1.0",
+	"author": "Josef Martiňák",
+	"descriptionmsg": "advanceduserstats-desc",
+	"type": "specialpage",
+	"SpecialPages": {
+		"AdvancedUserStats": "AdvancedUserStats"
+	},
+	"MessagesDirs": {
+		"AdvancedUserStats": [
+			"i18n"
+		]
+	},
+	"AutoloadClasses": {
+		"AdvancedUserStats": "AdvancedUserStats_body.php"
+	},
+	"ResourceModules": {
+		"ext.AdvancedUserStats": {
+			"styles": [
+				"ext.AdvancedUserStats.css"
+			],
+			"scripts": [
+				"ext.AdvancedUserStats.js"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "AdvancedUserStats"
+	},
+	"config": {
+		"AUSreports": null
+	},
+	"manifest_version": 1
+}

@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"Josef Martiňák"
+		]
+	},
+	"advanceduserstats": "Podrobnější statistiky uživatelů",
+	"advanceduserstats-desc": "Přehled aktivity uživatelů především",
+	"advanceduserstats-info": "Co nenabízí ContributionScores - vrácené editace, patrolování",
+	"advanceduserstats-top": "($1 nejvyšších)",
+	"advanceduserstats-days": "{{PLURAL:$1|Poslední den|Poslední $1 dny|Posledních $1 dnů}}",
+	"advanceduserstats-rollback": "Vrácené editace",
+	"advanceduserstats-undo": "Zrušené editace",
+	"advanceduserstats-patrol": "Patrolované editace",
+	"advanceduserstats-pages": "Stránky",
+	"advanceduserstats-nonexistent": "Smazaná stránka",
+	"advanceduserstats-username": "Uživatelské jméno",
+	"advanceduserstats-allrevisions": "Kompletní historie"
+}
