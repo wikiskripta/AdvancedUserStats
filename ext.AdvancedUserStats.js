@@ -1,4 +1,11 @@
-
+/**
+ * Javascripts for AdvancedUserStats
+ * @ingroup Extensions
+ * @author Josef Martiňák
+ * @license MIT
+ * @file
+ */
+ 
 ( function ( mw, $ ) {
 
 	// Add onclick - zobrazit / skýt detaily
