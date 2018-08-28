@@ -5,7 +5,7 @@
 		]
 	},
 	"advanceduserstats": "Podrobnější statistiky uživatelů",
-	"advanceduserstats-desc": "Přehled aktivity uživatelů především",
+	"advanceduserstats-desc": "Přehled aktivity uživatelů",
 	"advanceduserstats-info": "Co nenabízí ContributionScores - vrácené editace, patrolování",
 	"advanceduserstats-top": "($1 nejvyšších)",
 	"advanceduserstats-days": "{{PLURAL:$1|Poslední den|Poslední $1 dny|Posledních $1 dnů}}",
