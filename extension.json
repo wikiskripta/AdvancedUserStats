@@ -3,7 +3,12 @@
 	"version": "1.0",
 	"author": "Josef Martiňák",
 	"descriptionmsg": "advanceduserstats-desc",
+	"url": "https://bitbucket.org/wikiskripta/advanceduserstats",
 	"type": "specialpage",
+	"requires": {
+		"MediaWiki": ">= 1.29.0"
+	},
+	"license-name": "MIT",
 	"SpecialPages": {
 		"AdvancedUserStats": "AdvancedUserStats"
 	},
@@ -32,5 +37,5 @@
 	"config": {
 		"AUSreports": null
 	},
-	"manifest_version": 1
+	"manifest_version": 2
 }

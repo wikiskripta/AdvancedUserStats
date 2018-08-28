@@ -4,14 +4,13 @@ Mediawiki extension.
 
 ## Description
 
-* Version 1.0
-* _AdvancedUserStats_ displays user stats from logging table and reverts.
+_AdvancedUserStats_ displays user stats from logging table and reverts.
 
 
 ## Installation
 
-* Make sure you have MediaWiki 1.25+ installed.
-* Download and place the extension's folder to your /extensions/ folder.
+* Make sure you have MediaWiki 1.29+ installed.
+* Download and place the extension to your _/extensions/_ folder.
 * Add the following code to your LocalSettings.php: `wfLoadExtension( 'AdvancedUserStats' )`;
 * Set access in _LocalSettings.php_:
 ```
@@ -40,7 +39,7 @@ This extension is available in English and Czech language. For other languages, 
 ## Authors and license
 
 * [Josef Martiňák](https://bitbucket.org/josmart/)
-* MIT License, Copyright (c) 2017 First Faculty of Medicine, Charles University
+* MIT License, Copyright (c) 2018 First Faculty of Medicine, Charles University
 
 
 
