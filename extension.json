@@ -5,6 +5,7 @@
 	"descriptionmsg": "advanceduserstats-desc",
 	"url": "https://bitbucket.org/wikiskripta/advanceduserstats",
 	"type": "specialpage",
+	"status": "stable",
 	"requires": {
 		"MediaWiki": ">= 1.29.0"
 	},
