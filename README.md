@@ -20,12 +20,15 @@ $wgGroupPermissions['sysop']['advanceduserstats'] = true;
 ```
 
 
-## Details
+## Config
 
-* Running a couple of times (with some delay) recommended. Server can be down at this exact moment.
-* Stats are stored in CSV file. New line is appended only once a day.
-* In case of Wikifarm with one shared _extensions_ folder, we can create CSV files for all sites.
-
+Set multiple stats sections in extension.json
+```
+"AUSreports": {
+	"value": [[7, 50], [30, 50], [0, 50]],
+	"description": "First item: number of days (0=complete), second item: number of displayed users."
+}
+```
 
 ## SpecialPage
 

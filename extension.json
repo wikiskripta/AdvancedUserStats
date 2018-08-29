@@ -36,7 +36,10 @@
 		"remoteExtPath": "AdvancedUserStats"
 	},
 	"config": {
-		"AUSreports": null
+		"AUSreports": {
+			"value": [[10, 50], [30, 50], [0, 50]],
+			"description": "First item: number of days (0=complete), second item: number of displayed users."
+		}
 	},
 	"manifest_version": 2
 }

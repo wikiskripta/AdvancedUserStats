@@ -111,7 +111,6 @@ class AdvancedUserStats extends SpecialPage {
 	}		
 	
 	function execute( $par ) {
-		global $wgAUSreports;
 		$this->checkPermissions();
 		$this->setHeaders();
 		$out = $this->getOutput();
@@ -120,22 +119,17 @@ class AdvancedUserStats extends SpecialPage {
 		$dbr = wfGetDB( DB_SLAVE );
 		
 		// display special page
-		if ( !is_array( $wgAUSreports ) ) {
-			$wgAUSreports = array(
+		$config = $this->getConfig();
+		$AUSreports = $config->get( 'AUSreports' );
+		if ( !is_array( $AUSreports ) ) {
+			// default values
+			$AUSreports = array(
 				array( 7, 50 ),
 				array( 30, 50 ),
 				array( 0, 50 )
 			);
 		}
-		/*
-		$dropdown = "<br><form><select id='AUSswitch'>\n";
-		$dropdown .= "<option value='patrol'>" . $this->msg( 'advanceduserstats-patrol' )->text() . "</option>";
-		$dropdown .= "<option value='undo'>" . $this->msg( 'advanceduserstats-undo' )->text() . "</option>";
-		$dropdown .= "<option value='revert'>" . $this->msg( 'advanceduserstats-revert' )->text() . "</option>";
-		$dropdown .= "</select></form>";
-		$out->addHTML($dropdown);
-		*/
-		foreach ( $wgAUSreports as $scoreReport ) {
+		foreach ( $AUSreports as $scoreReport ) {
 			list( $days, $revs ) = $scoreReport;
 			if ( $days > 0 ) {
 				$reportTitle = $this->msg( 'advanceduserstats-days' )->numParams( $days )->text();
