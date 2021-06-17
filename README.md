@@ -4,7 +4,8 @@ Mediawiki extension.
 
 ## Description
 
-_AdvancedUserStats_ displays user stats from logging table and reverts.
+* _AdvancedUserStats_ displays user stats from logging table and reverts.
+* Version 1.0
 
 
 ## Installation
@@ -19,31 +20,28 @@ $wgGroupPermissions['user']['advanceduserstats'] = false;
 $wgGroupPermissions['sysop']['advanceduserstats'] = true;
 ```
 
-
 ## Config
 
 Set multiple stats sections in extension.json
-```
+
+```php
+
 "AUSreports": {
 	"value": [[7, 50], [30, 50], [0, 50]],
 	"description": "First item: number of days (0=complete), second item: number of displayed users."
 }
+
 ```
 
 ## SpecialPage
 
 _Special:AdvancedUserStats_ - shows patrolled, canceled an reverted edits.
 
-
 ## Internationalization
-This extension is available in English and Czech language. For other languages, just edit files in /i18n/ folder.
 
+This extension is available in English and Czech language. For other languages, just edit files in /i18n/ folder.
 
 ## Authors and license
 
 * [Josef Martiňák](https://www.wikiskripta.eu/w/User:Josmart)
 * MIT License, Copyright (c) 2018 First Faculty of Medicine, Charles University
-
-
-
-
