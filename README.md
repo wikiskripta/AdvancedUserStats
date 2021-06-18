@@ -5,7 +5,7 @@ Mediawiki extension.
 ## Description
 
 * _AdvancedUserStats_ displays user stats from logging table and reverts.
-* Version 1.0.1
+* Version 1.1
 
 ## Installation
 
@@ -43,9 +43,11 @@ This extension is available in English and Czech language. For other languages, 
 
 ## Release Notes
 
-### 1.0.1
+### 1.1
 
 * Fix: "The constant DB_SLAVE/MASTER deprecated in 1.28. Use DB_REPLICA/PRIMARY instead.
+* Database structure has changed. SQL selects rewritten for MW 1.36.
+* Need rewrite after temp tables (revision_actor_temp, revision_comment_temp) become obsolete.
 
 ## Authors and license
 

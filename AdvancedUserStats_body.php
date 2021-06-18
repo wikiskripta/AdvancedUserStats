@@ -89,37 +89,6 @@ class AdvancedUserStats extends SpecialPage {
 		$sql .= "$whereRollback GROUP BY actor.actor_user ORDER BY pcount DESC";
 		$output .= $this->prepareTableOutput( $sql, 'rollback', $limit, $dbr );
 
-		/*
-		$wherePatrol = "WHERE logging.log_type='patrol' AND logging.log_params LIKE '%\"6::auto\";i:0%' AND user.user_name IS NOT NULL ";
-		$whereUndo = "WHERE revision.rev_comment LIKE '%Zrušena verze%' AND user.user_name IS NOT NULL ";
-		$whereRollback = "WHERE revision.rev_comment LIKE '%vráceny do předchozího stavu%' AND user.user_name IS NOT NULL ";
-		if ( $days > 0 ) {
-			$wherePatrol .= "AND logging.log_timestamp > '$dateString' ";
-			$whereUndo .= "AND revision.rev_timestamp > '$dateString' ";
-			$whereRollback .= "AND revision.rev_timestamp > '$dateString' ";
-		}
-
-		// načti patrolace
-		$sql = "SELECT logging.log_user AS userid, user.user_name AS username, user.user_real_name AS userrealname, ";
-		$sql .= "GROUP_CONCAT(logging.log_page) AS pages, COUNT(logging.log_page) AS pcount ";
-		$sql .= "FROM logging LEFT JOIN user ON(logging.log_user = user.user_id) ";
-		$sql .= "$wherePatrol GROUP BY logging.log_user ORDER BY pcount DESC";
-		$output = $this->prepareTableOutput( $sql, 'patrol', $limit, $dbr );
-
-		// načti undo
-		$sql = "SELECT revision.rev_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
-		$sql .= "revision.rev_comment AS comment, GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
-		$sql .= "FROM revision LEFT JOIN user ON(revision.rev_user = user.user_id) ";
-		$sql .= "$whereUndo GROUP BY revision.rev_user ORDER BY pcount DESC";
-		$output .= $this->prepareTableOutput( $sql, 'undo', $limit, $dbr );
-		
-		// načti rollback
-		$sql = "SELECT revision.rev_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
-		$sql .= "revision.rev_comment AS comment, GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
-		$sql .= "FROM revision LEFT JOIN user ON(revision.rev_user = user.user_id) ";
-		$sql .= "$whereRollback GROUP BY revision.rev_user ORDER BY pcount DESC";
-		$output .= $this->prepareTableOutput( $sql, 'rollback', $limit, $dbr );
-		*/
 		return $output;
 	}
 	
