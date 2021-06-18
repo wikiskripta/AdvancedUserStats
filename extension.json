@@ -1,13 +1,13 @@
 {
 	"name": "AdvancedUserStats",
-	"version": "1.0",
+	"version": "1.0.1",
 	"author": "[https://www.wikiskripta.eu/w/User:Josmart Josef Martiňák]",
 	"descriptionmsg": "advanceduserstats-desc",
 	"url": "https://bitbucket.org/wikiskripta/advanceduserstats",
 	"type": "specialpage",
 	"status": "stable",
 	"requires": {
-		"MediaWiki": ">= 1.29.0"
+		"MediaWiki": ">= 1.36.0"
 	},
 	"license-name": "MIT",
 	"SpecialPages": {

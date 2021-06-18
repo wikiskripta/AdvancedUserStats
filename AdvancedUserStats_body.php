@@ -23,10 +23,73 @@ class AdvancedUserStats extends SpecialPage {
 	 * @param $limit int Maximum number of users to return (default 50)
 	 * @return Html Table representing the requested AdvancedUserStats.
 	 */
-	function genAUStable( $days, $limit ) {
-		$dbr = wfGetDB( DB_SLAVE );
+	public function genAUStable( $days, $limit ) {
+		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $conn->getConnectionRef(DB_REPLICA);
+		//$dbr = wfGetDB( DB_SLAVE );
 		$date = time() - ( 60 * 60 * 24 * $days );
 		$dateString = $dbr->timestamp( $date );
+
+		/*
+		revision
+		rev_actor (zatím nula, bude fungovat v dalších verzích)
+
+		revision_actor_temp
+		revactor_rev	revactor_actor	revactor_timestamp	revactor_page
+
+		actor
+		actor_id | actor_user | actor_name
+
+		revision_comment_temp
+		revcomment_rev    revcomment_comment_id
+
+		comment
+		comment_id  comment_text
+		*/
+
+		$wherePatrol = "WHERE logging.log_type='patrol' AND logging.log_params LIKE '%\"6::auto\";i:0%' AND user.user_name IS NOT NULL ";
+		$whereUndo = "WHERE comment.comment_text LIKE '%Zrušena verze%' AND user.user_name IS NOT NULL ";
+		$whereRollback = "WHERE comment.comment_text LIKE '%vráceny do předchozího stavu%' AND user.user_name IS NOT NULL ";
+		if ( $days > 0 ) {
+			$wherePatrol .= "AND logging.log_timestamp > '$dateString' ";
+			$whereUndo .= "AND revision.rev_timestamp > '$dateString' ";
+			$whereRollback .= "AND revision.rev_timestamp > '$dateString' ";
+		}
+
+		// načti patrolace
+		$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname, ";
+		$sql .= "GROUP_CONCAT(logging.log_page) AS pages, COUNT(logging.log_page) AS pcount ";
+		$sql .= "FROM logging ";
+		$sql .= "INNER JOIN actor ON(logging.log_actor = actor.actor_id) ";
+		$sql .= "INNER JOIN user ON(actor.actor_user = user.user_id) ";
+		$sql .= "$wherePatrol GROUP BY logging.log_actor ORDER BY pcount DESC";
+		$output = $this->prepareTableOutput( $sql, 'patrol', $limit, $dbr );
+
+		// načti undo
+		$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
+		$sql .= "comment.comment_text AS comment, GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
+		$sql .= "FROM revision ";
+		$sql .= "INNER JOIN revision_actor_temp ON(revision_actor_temp.revactor_page = revision.rev_page AND revision_actor_temp.revactor_rev = revision.rev_id) ";
+		$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_comment_id = revision.rev_comment_id) ";
+		$sql .= "INNER JOIN comment ON(comment.comment_id = revision_comment_temp.revcomment_comment_id) ";
+		$sql .= "INNER JOIN actor ON(revision_actor_temp.revactor_actor = actor.actor_id) ";
+		$sql .= "INNER JOIN user ON(actor.actor_user = user.user_id) ";
+		$sql .= "$whereUndo GROUP BY actor.actor_user ORDER BY pcount DESC";
+		$output .= $this->prepareTableOutput( $sql, 'undo', $limit, $dbr );
+		
+		// načti rollback
+		$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
+		$sql .= "comment.comment_text AS comment, GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
+		$sql .= "FROM revision ";
+		$sql .= "INNER JOIN revision_actor_temp ON(revision_actor_temp.revactor_page = revision.rev_page AND revision_actor_temp.revactor_rev = revision.rev_id) ";
+		$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_comment_id = revision.rev_comment_id) ";
+		$sql .= "INNER JOIN comment ON(comment.comment_id = revision_comment_temp.revcomment_comment_id) ";
+		$sql .= "INNER JOIN actor ON(revision_actor_temp.revactor_actor = actor.actor_id) ";
+		$sql .= "INNER JOIN user ON(actor.actor_user = user.user_id) ";
+		$sql .= "$whereRollback GROUP BY actor.actor_user ORDER BY pcount DESC";
+		$output .= $this->prepareTableOutput( $sql, 'rollback', $limit, $dbr );
+
+		/*
 		$wherePatrol = "WHERE logging.log_type='patrol' AND logging.log_params LIKE '%\"6::auto\";i:0%' AND user.user_name IS NOT NULL ";
 		$whereUndo = "WHERE revision.rev_comment LIKE '%Zrušena verze%' AND user.user_name IS NOT NULL ";
 		$whereRollback = "WHERE revision.rev_comment LIKE '%vráceny do předchozího stavu%' AND user.user_name IS NOT NULL ";
@@ -35,7 +98,7 @@ class AdvancedUserStats extends SpecialPage {
 			$whereUndo .= "AND revision.rev_timestamp > '$dateString' ";
 			$whereRollback .= "AND revision.rev_timestamp > '$dateString' ";
 		}
-		
+
 		// načti patrolace
 		$sql = "SELECT logging.log_user AS userid, user.user_name AS username, user.user_real_name AS userrealname, ";
 		$sql .= "GROUP_CONCAT(logging.log_page) AS pages, COUNT(logging.log_page) AS pcount ";
@@ -56,7 +119,7 @@ class AdvancedUserStats extends SpecialPage {
 		$sql .= "FROM revision LEFT JOIN user ON(revision.rev_user = user.user_id) ";
 		$sql .= "$whereRollback GROUP BY revision.rev_user ORDER BY pcount DESC";
 		$output .= $this->prepareTableOutput( $sql, 'rollback', $limit, $dbr );
-
+		*/
 		return $output;
 	}
 	
@@ -93,7 +156,7 @@ class AdvancedUserStats extends SpecialPage {
 				if( $t = Title::newFromID( $page ) ) {
 					$output .= "<li><a href='" . $t->getFullUrl() . "?action=history' target='_blank'>" . $t->getPrefixedText() . "</a></li>";
 				}
-				else $output .= "<li>$page</li>";
+				else $output .= "<li>$page (odstraněno)</li>";
 			}
 			$output .= "</ul>";
 			$output .= "</div>";
@@ -116,7 +179,9 @@ class AdvancedUserStats extends SpecialPage {
 		$out = $this->getOutput();
 		$out->addModules('ext.AdvancedUserStats');
 		$out->addWikiMsg( 'advanceduserstats-info' );
-		$dbr = wfGetDB( DB_SLAVE );
+		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $conn->getConnectionRef(DB_REPLICA);
+		//$dbr = wfGetDB( DB_SLAVE );
 		
 		// display special page
 		$config = $this->getConfig();

@@ -5,16 +5,16 @@ Mediawiki extension.
 ## Description
 
 * _AdvancedUserStats_ displays user stats from logging table and reverts.
-* Version 1.0
-
+* Version 1.0.1
 
 ## Installation
 
-* Make sure you have MediaWiki 1.29+ installed.
+* Make sure you have MediaWiki 1.36+ installed.
 * Download and place the extension to your _/extensions/_ folder.
 * Add the following code to your LocalSettings.php: `wfLoadExtension( 'AdvancedUserStats' )`;
 * Set access in _LocalSettings.php_:
-```
+
+```php
 $wgGroupPermissions['*']['advanceduserstats'] = false;
 $wgGroupPermissions['user']['advanceduserstats'] = false;
 $wgGroupPermissions['sysop']['advanceduserstats'] = true;
@@ -41,7 +41,13 @@ _Special:AdvancedUserStats_ - shows patrolled, canceled an reverted edits.
 
 This extension is available in English and Czech language. For other languages, just edit files in /i18n/ folder.
 
+## Release Notes
+
+### 1.0.1
+
+* Fix: "The constant DB_SLAVE/MASTER deprecated in 1.28. Use DB_REPLICA/PRIMARY instead.
+
 ## Authors and license
 
 * [Josef Martiňák](https://www.wikiskripta.eu/w/User:Josmart)
-* MIT License, Copyright (c) 2018 First Faculty of Medicine, Charles University
+* MIT License, Copyright (c) 2021 First Faculty of Medicine, Charles University
