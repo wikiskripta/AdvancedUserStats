@@ -30,23 +30,6 @@ class AdvancedUserStats extends SpecialPage {
 		$date = time() - ( 60 * 60 * 24 * $days );
 		$dateString = $dbr->timestamp( $date );
 
-		/*
-		revision
-		rev_actor (zatím nula, bude fungovat v dalších verzích)
-
-		revision_actor_temp
-		revactor_rev	revactor_actor	revactor_timestamp	revactor_page
-
-		actor
-		actor_id | actor_user | actor_name
-
-		revision_comment_temp
-		revcomment_rev    revcomment_comment_id
-
-		comment
-		comment_id  comment_text
-		*/
-
 		$wherePatrol = "WHERE logging.log_type='patrol' AND logging.log_params LIKE '%\"6::auto\";i:0%' AND user.user_name IS NOT NULL ";
 		$whereUndo = "WHERE comment.comment_text LIKE '%Zrušena verze%' AND user.user_name IS NOT NULL ";
 		$whereRollback = "WHERE comment.comment_text LIKE '%vráceny do předchozího stavu%' AND user.user_name IS NOT NULL ";
@@ -67,26 +50,25 @@ class AdvancedUserStats extends SpecialPage {
 
 		// načti undo
 		$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
-		$sql .= "comment.comment_text AS comment, GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
+		$sql .= "GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
 		$sql .= "FROM revision ";
-		$sql .= "INNER JOIN revision_actor_temp ON(revision_actor_temp.revactor_page = revision.rev_page AND revision_actor_temp.revactor_rev = revision.rev_id) ";
-		$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_comment_id = revision.rev_comment_id) ";
+		$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_rev = revision.rev_id) ";
 		$sql .= "INNER JOIN comment ON(comment.comment_id = revision_comment_temp.revcomment_comment_id) ";
-		$sql .= "INNER JOIN actor ON(revision_actor_temp.revactor_actor = actor.actor_id) ";
+		$sql .= "INNER JOIN actor ON(revision.rev_actor = actor.actor_id) ";
 		$sql .= "INNER JOIN user ON(actor.actor_user = user.user_id) ";
-		$sql .= "$whereUndo GROUP BY actor.actor_user ORDER BY pcount DESC";
+		$sql .= "$whereUndo GROUP BY actor.actor_user HAVING user.user_name IS NOT NULL AND user.user_real_name LIKE '%' ORDER BY pcount DESC";
 		$output .= $this->prepareTableOutput( $sql, 'undo', $limit, $dbr );
-		
+
 		// načti rollback
 		$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
-		$sql .= "comment.comment_text AS comment, GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
+		$sql .= "GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
 		$sql .= "FROM revision ";
-		$sql .= "INNER JOIN revision_actor_temp ON(revision_actor_temp.revactor_page = revision.rev_page AND revision_actor_temp.revactor_rev = revision.rev_id) ";
-		$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_comment_id = revision.rev_comment_id) ";
+		//$sql .= "INNER JOIN revision_actor_temp ON(revision_actor_temp.revactor_page = revision.rev_page AND revision_actor_temp.revactor_rev = revision.rev_id) ";
+		$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_rev = revision.rev_id) ";
 		$sql .= "INNER JOIN comment ON(comment.comment_id = revision_comment_temp.revcomment_comment_id) ";
-		$sql .= "INNER JOIN actor ON(revision_actor_temp.revactor_actor = actor.actor_id) ";
+		$sql .= "INNER JOIN actor ON(revision.rev_actor = actor.actor_id) ";
 		$sql .= "INNER JOIN user ON(actor.actor_user = user.user_id) ";
-		$sql .= "$whereRollback GROUP BY actor.actor_user ORDER BY pcount DESC";
+		$sql .= "$whereRollback GROUP BY actor.actor_user HAVING user.user_name IS NOT NULL AND user.user_real_name LIKE '%' ORDER BY pcount DESC";
 		$output .= $this->prepareTableOutput( $sql, 'rollback', $limit, $dbr );
 
 		return $output;
@@ -108,7 +90,7 @@ class AdvancedUserStats extends SpecialPage {
 		$output .= "<tr class='header'><th style='width:300px;'>" . $this->msg( 'advanceduserstats-username' )->text() . "</th>";
 		$output .= "<th>" . $this->msg( 'advanceduserstats-' . $type )->text() . "</th></tr>";
 		foreach ( $res as $row ) {
-			// Use real name if option used and real name present
+			// Use real name if real name present
 			if( !empty( $row->username ) ) {
 				$tmp = Linker::userLink( $row->userid, $row->username );
 				if ( $row->userrealname !== '' ) $tmp .= " (" . $row->userrealname . ")";
@@ -137,7 +119,8 @@ class AdvancedUserStats extends SpecialPage {
 			}
 		}
 		$output .= "</table>\n";
-		$dbr->freeResult( $res );
+		#$dbr->freeResult( $res );
+		$res->free();
 		
 		return $output;
 	}		
