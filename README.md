@@ -57,4 +57,4 @@ This extension is available in English and Czech language. For other languages, 
 ## Authors and license
 
 * [Josef Martiňák](https://www.wikiskripta.eu/w/User:Josmart)
-* MIT License, Copyright (c) 2022 First Faculty of Medicine, Charles University
+* MIT License, Copyright (c) 2023 First Faculty of Medicine, Charles University
