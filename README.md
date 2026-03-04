@@ -5,11 +5,11 @@ Mediawiki extension.
 ## Description
 
 * _AdvancedUserStats_ displays user stats from logging table and reverts.
-* Version 1.1.1
+* Version 1.2.0
 
 ## Installation
 
-* Make sure you have MediaWiki 1.39+ installed.
+* Make sure you have MediaWiki 1.45+ installed.
 * Download and place the extension to your _/extensions/_ folder.
 * Add the following code to your LocalSettings.php: `wfLoadExtension( 'AdvancedUserStats' )`;
 * Set access in _LocalSettings.php_:
@@ -54,7 +54,12 @@ This extension is available in English and Czech language. For other languages, 
 * Database structure has changed in MW 1.36. 
 * Revision_actor_temp become obsolete.
 
+### 1.2.0
+
+* Adapted for new db schema of MW 1.45.
+* Speed optimalisation.
+
 ## Authors and license
 
 * [Josef Martiňák](https://www.wikiskripta.eu/w/User:Josmart)
-* MIT License, Copyright (c) 2022 First Faculty of Medicine, Charles University
+* MIT License, Copyright (c) 2026 First Faculty of Medicine, Charles University

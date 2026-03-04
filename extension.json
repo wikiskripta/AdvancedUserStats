@@ -1,17 +1,20 @@
 {
 	"name": "AdvancedUserStats",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"author": "[https://www.wikiskripta.eu/w/User:Josmart Josef Martiňák]",
 	"descriptionmsg": "advanceduserstats-desc",
-	"url": "https://bitbucket.org/wikiskripta/advanceduserstats",
+	"url": "https://github.com/wikiskripta/AdvancedUserStats",
 	"type": "specialpage",
 	"status": "stable",
 	"requires": {
-		"MediaWiki": ">= 1.39.0"
+		"MediaWiki": ">= 1.45.0"
 	},
 	"license-name": "MIT",
 	"SpecialPages": {
 		"AdvancedUserStats": "AdvancedUserStats"
+	},
+	"ExtensionMessagesFiles": {
+		"AdvancedUserStatsAlias": "AdvancedUserStats.alias.php"
 	},
 	"MessagesDirs": {
 		"AdvancedUserStats": [
@@ -21,6 +24,12 @@
 	"AutoloadClasses": {
 		"AdvancedUserStats": "AdvancedUserStats_body.php"
 	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\AdvancedUserStats\\": "includes/"
+	},
+	"APIModules": {
+		"advanceduserstatsdetail": "MediaWiki\\Extension\\AdvancedUserStats\\Api\\ApiAdvancedUserStatsDetail"
+	},
 	"ResourceModules": {
 		"ext.AdvancedUserStats": {
 			"styles": [
@@ -28,6 +37,10 @@
 			],
 			"scripts": [
 				"ext.AdvancedUserStats.js"
+			],
+			"dependencies": [
+				"mediawiki.api",
+				"mediawiki.Title"
 			]
 		}
 	},

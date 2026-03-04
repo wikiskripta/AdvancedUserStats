@@ -1,5 +1,11 @@
 <?php
 
+use MediaWiki\Linker\Linker;
+use MediaWiki\Title\Title;
+use MediaWiki\Xml\Xml;
+use MediaWiki\Html\Html;
+use MediaWiki\MediaWikiServices;
+
 /**
  * SpecialPage file for AdvancedUserStats
  * Displays stats from logging table and reverts
@@ -24,8 +30,16 @@ class AdvancedUserStats extends SpecialPage {
 	 * @return Html Table representing the requested AdvancedUserStats.
 	 */
 	public function genAUStable( $days, $limit ) {
-		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr = $conn->getConnectionRef(DB_REPLICA);
+		$services = MediaWikiServices::getInstance();
+		$cache = $services->getMainWANObjectCache();
+		$cacheKey = $cache->makeKey( 'advanceduserstats', 'summary', 'v2', (string)$days, (string)$limit );
+
+		return $cache->getWithSetCallback(
+			$cacheKey,
+			600,
+			function () use ( $services, $days, $limit ) {
+				$lb = $services->getDBLoadBalancer();
+				$dbr = $lb->getConnection( DB_REPLICA );
 		//$dbr = wfGetDB( DB_SLAVE );
 		$date = time() - ( 60 * 60 * 24 * $days );
 		$dateString = $dbr->timestamp( $date );
@@ -39,39 +53,51 @@ class AdvancedUserStats extends SpecialPage {
 			$whereRollback .= "AND revision.rev_timestamp > '$dateString' ";
 		}
 
-		// načti patrolace
-		$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname, ";
-		$sql .= "GROUP_CONCAT(logging.log_page) AS pages, COUNT(logging.log_page) AS pcount ";
+				// načti patrolace (souhrn)
+				$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname, ";
+				$sql .= "COUNT(DISTINCT logging.log_page) AS pcount ";
 		$sql .= "FROM logging ";
 		$sql .= "INNER JOIN actor ON(logging.log_actor = actor.actor_id) ";
 		$sql .= "INNER JOIN user ON(actor.actor_user = user.user_id) ";
 		$sql .= "$wherePatrol GROUP BY logging.log_actor ORDER BY pcount DESC";
-		$output = $this->prepareTableOutput( $sql, 'patrol', $limit, $dbr );
+		$output = $this->prepareTableOutput( $dbr, $sql, 'patrol', $limit, $days );
 
-		// načti undo
-		$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
-		$sql .= "GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
+				// načti undo (souhrn)
+				$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
+				$sql .= "COUNT(DISTINCT revision.rev_page) AS pcount ";
 		$sql .= "FROM revision ";
-		$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_rev = revision.rev_id) ";
-		$sql .= "INNER JOIN comment ON(comment.comment_id = revision_comment_temp.revcomment_comment_id) ";
+// MW 1.39 used revision_comment_temp; MW 1.45 typically stores rev_comment_id directly on revision.
+if ( $dbr->tableExists( 'revision_comment_temp', __METHOD__ ) ) {
+	$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_rev = revision.rev_id) ";
+	$sql .= "INNER JOIN comment ON(comment.comment_id = revision_comment_temp.revcomment_comment_id) ";
+} else {
+	$sql .= "INNER JOIN comment ON(comment.comment_id = revision.rev_comment_id) ";
+}
 		$sql .= "INNER JOIN actor ON(revision.rev_actor = actor.actor_id) ";
 		$sql .= "INNER JOIN user ON(actor.actor_user = user.user_id) ";
 		$sql .= "$whereUndo GROUP BY actor.actor_user HAVING user.user_name IS NOT NULL AND user.user_real_name LIKE '%' ORDER BY pcount DESC";
-		$output .= $this->prepareTableOutput( $sql, 'undo', $limit, $dbr );
+		$output .= $this->prepareTableOutput( $dbr, $sql, 'undo', $limit, $days );
 
-		// načti rollback
-		$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
-		$sql .= "GROUP_CONCAT(revision.rev_page) AS pages, COUNT(revision.rev_page) AS pcount ";
+				// načti rollback (souhrn)
+				$sql = "SELECT actor.actor_user AS userid, user.user_name AS username, user.user_real_name AS userrealname,";
+				$sql .= "COUNT(DISTINCT revision.rev_page) AS pcount ";
 		$sql .= "FROM revision ";
+// MW 1.39 used revision_comment_temp; MW 1.45 typically stores rev_comment_id directly on revision.
+if ( $dbr->tableExists( 'revision_comment_temp', __METHOD__ ) ) {
+	$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_rev = revision.rev_id) ";
+	$sql .= "INNER JOIN comment ON(comment.comment_id = revision_comment_temp.revcomment_comment_id) ";
+} else {
+	$sql .= "INNER JOIN comment ON(comment.comment_id = revision.rev_comment_id) ";
+}
 		//$sql .= "INNER JOIN revision_actor_temp ON(revision_actor_temp.revactor_page = revision.rev_page AND revision_actor_temp.revactor_rev = revision.rev_id) ";
-		$sql .= "INNER JOIN revision_comment_temp ON(revision_comment_temp.revcomment_rev = revision.rev_id) ";
-		$sql .= "INNER JOIN comment ON(comment.comment_id = revision_comment_temp.revcomment_comment_id) ";
 		$sql .= "INNER JOIN actor ON(revision.rev_actor = actor.actor_id) ";
 		$sql .= "INNER JOIN user ON(actor.actor_user = user.user_id) ";
 		$sql .= "$whereRollback GROUP BY actor.actor_user HAVING user.user_name IS NOT NULL AND user.user_real_name LIKE '%' ORDER BY pcount DESC";
-		$output .= $this->prepareTableOutput( $sql, 'rollback', $limit, $dbr );
+		$output .= $this->prepareTableOutput( $dbr, $sql, 'rollback', $limit, $days );
 
-		return $output;
+				return $output;
+			}
+		);
 	}
 	
 	/**
@@ -81,7 +107,7 @@ class AdvancedUserStats extends SpecialPage {
 	 * @param $type=patrol|undo|rollback
 	 * @return $limit 
 	 */	
-	function prepareTableOutput( $sql, $type, $limit = '', $dbr ) {
+	function prepareTableOutput( $dbr, $sql, $type, $limit = '', $days = 0 ) {
 		$sortable = ' sortable';	// '' pro netrizenou tabulku
 		$altrow = '';
 		if( $limit ) $sql .= " LIMIT $limit";
@@ -98,19 +124,23 @@ class AdvancedUserStats extends SpecialPage {
 			else continue;
 			$output .= "<tr class='{$altrow}'><td>";
 			$output .= $tmp . "</td><td>";
-			$output .= substr_count( $row->pages, ',' ) + 1;
-			$output .= "&nbsp;&nbsp;<a class='AUSdetailsToggle' href='" . $row->pages . "'>detail</a>";
-			$output .= "<div class='AUSdetails'>";
-			$pages = array_unique( explode(',', $row->pages ) );
-			$output .= "<ul>";
-			foreach ( $pages as $page ) {
-				if( $t = Title::newFromID( $page ) ) {
-					$output .= "<li><a href='" . $t->getFullUrl() . "?action=history' target='_blank'>" . $t->getPrefixedText() . "</a></li>";
-				}
-				else $output .= "<li>$page (odstraněno)</li>";
-			}
-			$output .= "</ul>";
-			$output .= "</div>";
+			$output .= (int)$row->pcount;
+			$output .= "&nbsp;&nbsp;" . Html::element(
+				'a',
+				[
+					'href' => '#',
+					'class' => 'AUSdetailsToggle',
+					'data-type' => $type,
+					'data-user-id' => (string)$row->userid,
+					'data-days' => (string)$days,
+				],
+				'detail'
+			);
+			$output .= Html::rawElement(
+				'div',
+				[ 'class' => 'AUSdetails', 'style' => 'display:none' ],
+				''
+			);
 			$output .= "</td></tr>";
 			if ( $altrow == '' && empty( $sortable ) ) {
 				$altrow = 'odd ';
@@ -131,8 +161,8 @@ class AdvancedUserStats extends SpecialPage {
 		$out = $this->getOutput();
 		$out->addModules('ext.AdvancedUserStats');
 		$out->addWikiMsg( 'advanceduserstats-info' );
-		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr = $conn->getConnectionRef(DB_REPLICA);
+		$lb = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $lb->getConnection( DB_REPLICA );
 		//$dbr = wfGetDB( DB_SLAVE );
 		
 		// display special page
